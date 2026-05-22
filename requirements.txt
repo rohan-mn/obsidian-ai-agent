@@ -1,0 +1,5 @@
+ollama
+langgraph
+mcp
+python-dotenv
+"mcp[cli]"
