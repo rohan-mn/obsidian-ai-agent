@@ -1,5 +1,5 @@
 ollama
 langgraph
-mcp
+mcp[cli]
 python-dotenv
-"mcp[cli]"
+chromadb
