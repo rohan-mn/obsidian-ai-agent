@@ -7,6 +7,8 @@ Contents
 - `project1_note_assistant.py` — simple Ollama-based note generator that saves to an Obsidian vault `00-Inbox`.
 - `project2_mcp_obsidian_server.py` — an MCP server exposing vault operations (list, read, search, create, append).
 - `project3_langgraph_agent.py` — a LangGraph state-graph agent that builds an explanation, quiz, and project ideas, then saves a compiled note in the vault.
+- `project4_multi_agent_orchestrator.py` — a multi-agent orchestrator that runs modular agents (notes, research, quiz, coding, reflection) and saves combined results to the vault.
+- `project5_vector_search_obsidian.py` — semantic vector search and RAG utilities for Obsidian using ChromaDB + Ollama embeddings.
 - `requirements.txt` — Python dependencies used by these scripts.
 
 Prerequisites
@@ -122,12 +124,72 @@ python project3_langgraph_agent.py
 
 You will be prompted for a topic. The saved file path is printed at the end.
 
+4) project4_multi_agent_orchestrator.py — Multi-Agent Orchestrator
+- Purpose: Coordinate several specialized agents (Notes, Research, Quiz, Coding, Reflection) to produce a single, structured Obsidian note for a user task.
+- Key behavior:
+	- Builds a `StateGraph` workflow that: plans work, collects relevant Obsidian context, runs research/quiz/coding agents as needed, runs a reflection pass, assembles a final Markdown note, and saves it to the vault under `06-Advanced-Agent-Engineering/Multi-Agent Runs`.
+	- Uses local Ollama model calls for each agent via `ollama.chat`.
+	- Searches your vault for relevant notes to include context during the run.
+- Run (PowerShell):
+
+```powershell
+python project4_multi_agent_orchestrator.py
+```
+
+You will be prompted for a task (e.g. "Create a learning roadmap for MCP and LangGraph"). The script prints the saved note path when complete.
+
+Environment:
+	- Ensure `OBSIDIAN_VAULT` is set in `.env` or your environment (see "Environment configuration" above).
+	- Requires `ollama`, `langgraph`, and `python-dotenv` installed per `requirements.txt`.
+
+Notes and troubleshooting:
+	- The script will raise an error if `OBSIDIAN_VAULT` is not set or the path doesn't exist.
+	- If the Ollama model referenced by `MODEL` is not available locally, change the `MODEL` constant inside the script to a model you have.
+	- Output files are saved under `06-Advanced-Agent-Engineering/Multi-Agent Runs` inside your vault.
+
 Dependencies
 - See `requirements.txt`. The primary packages used are:
 	- `ollama` — Python client to call Ollama models
 	- `langgraph` — state graph orchestration used by `project3_langgraph_agent.py`
 	- `mcp` — MCP server and tooling used by `project2_mcp_obsidian_server.py`
 	- `python-dotenv` — loads `.env` file
+
+	5) project5_vector_search_obsidian.py — Vector Search + RAG
+	- Purpose: Build and query a ChromaDB vector index for your Obsidian vault, provide semantic search, RAG-style Q&A, and save generated RAG answers back into your vault.
+	- Key behavior:
+		- Scans the Obsidian vault for Markdown notes, chunking note text into character-based chunks.
+		- Creates a ChromaDB persistent collection stored in `chroma_obsidian_db/`.
+		- Produces embeddings using a local Ollama embedding model (configured via `EMBED_MODEL`) and stores documents, embeddings, and metadata in the collection.
+		- Supports subcommands: `index`, `search`, `ask`, `save-answer`, and `stats`.
+	- Run (PowerShell):
+
+	```powershell
+	# Index all notes (run first, or after updating notes)
+	python project5_vector_search_obsidian.py index
+
+	# Semantic search
+	python project5_vector_search_obsidian.py search "how do MCP and LangGraph work together?"
+
+	# Ask a question using retrieved context
+	python project5_vector_search_obsidian.py ask "What is LangGraph?"
+
+	# Save a RAG answer into the vault
+	python project5_vector_search_obsidian.py save-answer "How do MCP and LangGraph work together?"
+
+	# Show vector DB stats
+	python project5_vector_search_obsidian.py stats
+	```
+
+	Environment & requirements:
+		- `OBSIDIAN_VAULT` must be set in `.env` or the environment.
+		- Requires `chromadb`, `ollama`, and the embedding model referenced by `EMBED_MODEL` (e.g., `nomic-embed-text`) available to Ollama.
+		- Chroma DB files are kept in `chroma_obsidian_db/` in the repository; the script will create this folder when needed.
+
+	Notes and troubleshooting:
+		- If no results are returned for `search`/`ask`, run `index` first to build the vector index.
+		- If embeddings fail, confirm the `EMBED_MODEL` exists in your Ollama runtime or change it to another local embedding model.
+		- The `index` command may take time depending on the number and size of notes; embedding is batched in the script.
+		- Saved RAG answers are written to `06-Advanced-Agent-Engineering/Vector Search Runs` inside your vault.
 
 Troubleshooting
 - OBISIDIAN_VAULT not set: the scripts will raise a helpful error explaining how to set `OBSIDIAN_VAULT` in `.env` or environment.
