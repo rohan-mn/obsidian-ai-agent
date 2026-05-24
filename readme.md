@@ -4,7 +4,7 @@ A local-first AI second-brain lab for learning and building agentic AI systems u
 
 This repository contains a staged set of Python projects that gradually upgrade a simple Obsidian note generator into a multi-agent, MCP-enabled, vector-search-powered AI second brain.
 
-> Note: The repository name currently uses `obsedian-ai-agent`. The correct spelling is **Obsidian**.
+
 
 ---
 
