@@ -3,3 +3,7 @@ langgraph
 mcp[cli]
 python-dotenv
 chromadb
+langsmith
+fastapi
+uvicorn
+pydantic
